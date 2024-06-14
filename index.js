@@ -44,13 +44,27 @@ app.get('/', (req, res) => {
 });
 
 app.get('/article/:slug', (req, res) => {
-    let query = `SELECT au.name as author, ar.name, ar.published, ar.slug, ar.image, ar.body FROM article ar JOIN author au on ar.author_id = au.id WHERE slug= "${req.params.slug}"`;
+    let query = `SELECT au.id as author_id, au.name as author, ar.name, ar.published, ar.slug, ar.image, ar.body FROM article ar JOIN author au on ar.author_id = au.id WHERE slug= "${req.params.slug}"`;
     let article
     con.query(query, function(err, result) {
         if (err) throw err;
         article = result;
         console.log(article);
         res.render('article', { article: article });
+    });
+});
+
+app.get('/author/:id', (req, res) => {
+    let query = `SELECT au.id as author_id, au.name as author, ar.name, ar.published, ar.slug, ar.image, ar.body FROM article ar JOIN author au on ar.author_id = au.id WHERE au.id= "${req.params.id}"`;
+    let articles = [];
+    let author_name
+    con.query(query, function(err, result) {
+        if (err) throw err;
+        author_name = result[0].author;
+        console.log(author_name);
+        articles = result;
+        console.log(articles);
+        res.render('author', { articles: articles, author_name: author_name});
     });
 });
 
