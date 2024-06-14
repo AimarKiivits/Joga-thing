@@ -15,44 +15,13 @@ app.engine('hbs', hbs.engine({
 
 app.use(express.static('public'));
 
-const mysql = require('mysql');
-
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 
-let con = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "qwerty",
-    database: "joga_mysql"
-});
+const articleRouter = require('./routes/article');
 
-con.connect(function(err) {
-    if (err) throw err;
-    console.log("Connected!");
-});
-
-app.get('/', (req, res) => {
-    let query = "SELECT * FROM article";
-    let articles = [];
-    con.query(query, function(err, result) {
-        if (err) throw err;
-        articles = result;
-        console.log(articles);
-        res.render('index', { articles: articles });
-    });
-});
-
-app.get('/article/:slug', (req, res) => {
-    let query = `SELECT au.id as author_id, au.name as author, ar.name, ar.published, ar.slug, ar.image, ar.body FROM article ar JOIN author au on ar.author_id = au.id WHERE slug= "${req.params.slug}"`;
-    let article
-    con.query(query, function(err, result) {
-        if (err) throw err;
-        article = result;
-        console.log(article);
-        res.render('article', { article: article });
-    });
-});
+app.use('/', articleRouter);
+app.use('/article', articleRouter);
 
 app.get('/author/:id', (req, res) => {
     let query = `SELECT au.id as author_id, au.name as author, ar.name, ar.published, ar.slug, ar.image, ar.body FROM article ar JOIN author au on ar.author_id = au.id WHERE au.id= "${req.params.id}"`;
